@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getToken, login } from '../lib/auth';
 import api from '../lib/api';
+import PipLogo from '../components/PipLogo';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ export default function LoginPage() {
   return (
     <div className="login-page">
       <div className="login-card">
-        <div className="login-mascot">🐾</div>
+        <div className="login-mascot"><PipLogo size={72} /></div>
         <h1 className="login-title">PipLog</h1>
         <p className="login-subtitle">Your AI-powered trading journal</p>
         <p className="login-pip-quote">"Every trade tells a story. Let's read yours." — Pip</p>

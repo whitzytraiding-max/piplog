@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import { getUser, getToken, login } from '../lib/auth';
+import PipLogo from '../components/PipLogo';
 
 const STYLE_OPTIONS = [
   { label: 'Day Trader', value: 'day trader' },
@@ -67,7 +68,7 @@ export default function OnboardingPage() {
 
         {step === 0 && (
           <div>
-            <div className="onboarding-mascot">🐾</div>
+            <div className="onboarding-mascot"><PipLogo size={64} /></div>
             <h1 className="onboarding-title">I'm Pip.</h1>
             <p className="onboarding-sub">
               I've been waiting for you, {firstName}.<br />

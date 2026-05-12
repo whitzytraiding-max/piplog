@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { logout, getUser } from '../lib/auth';
+import PipLogo from './PipLogo';
 
 export default function Nav() {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ export default function Nav() {
   return (
     <nav className="nav">
       <div className="nav-brand">
-        <span className="nav-logo">🐾</span>
+        <PipLogo size={30} />
         <span className="nav-title">PipLog</span>
       </div>
       <div className="nav-links">
