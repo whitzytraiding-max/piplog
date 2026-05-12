@@ -44,7 +44,7 @@ export default function TradeEntryPage() {
       if (!isEdit && form.screenshots.length === 0) {
         setScanState('scanning');
         try {
-          const scan = await api.post('/trades/analyze-chart', { imageUrl: data.url });
+          const { data: scan } = await api.post('/trades/analyze-chart', { imageUrl: data.url });
           setForm(f => ({
             ...f,
             screenshots: [...f.screenshots, data.url],
