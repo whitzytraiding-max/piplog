@@ -483,7 +483,12 @@ a { text-decoration: none; color: inherit; -webkit-tap-highlight-color: transpar
 .login-title { font-size: 32px; font-weight: 800; letter-spacing: -1px; }
 .login-subtitle { color: var(--text2); font-size: 15px; }
 .login-pip-quote { color: var(--text2); font-size: 13px; font-style: italic; margin: 8px 0; }
-.login-google-btn { margin-top: 12px; }
+.login-google-btn { margin-top: 4px; min-height: 44px; }
+.login-form { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 8px; }
+.login-error { color: var(--red); font-size: 13px; text-align: center; }
+.login-divider { display: flex; align-items: center; gap: 10px; width: 100%; margin: 4px 0; }
+.login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.login-divider span { color: var(--text2); font-size: 12px; }
 
 /* Onboarding */
 .onboarding-page { min-height: 100vh; background: radial-gradient(ellipse at 50% 0%, rgba(99, 102, 241, 0.1) 0%, #090c13 60%); display: flex; align-items: center; justify-content: center; padding: 24px; }
