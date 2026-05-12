@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  ResponsiveContainer, AreaChart, Area,
+  XAxis, YAxis, Tooltip, ReferenceLine,
+} from 'recharts';
 import api from '../lib/api';
 import { getUser } from '../lib/auth';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState(null);
   const [monthStats, setMonthStats] = useState(null);
+  const [equityData, setEquityData] = useState([]);
   const [recentTrades, setRecentTrades] = useState([]);
   const [weeklyAnalysis, setWeeklyAnalysis] = useState('');
   const [loadingAnalysis, setLoadingAnalysis] = useState(false);
@@ -14,6 +19,7 @@ export default function DashboardPage() {
   useEffect(() => {
     api.get('/trades/stats/summary').then(r => setStats(r.data)).catch(() => {});
     api.get('/trades/stats/month').then(r => setMonthStats(r.data)).catch(() => {});
+    api.get('/trades/stats/equity').then(r => setEquityData(r.data)).catch(() => {});
     api.get('/trades').then(r => setRecentTrades(r.data.slice(0, 5))).catch(() => {});
   }, []);
 
@@ -86,6 +92,57 @@ export default function DashboardPage() {
           </div>
         </div>
       )}
+
+      {equityData.length > 1 && (() => {
+        const last = Number(equityData[equityData.length - 1].cumulative_pnl);
+        const isUp = last >= 0;
+        const color = isUp ? '#10b981' : '#f43f5e';
+        const gradId = isUp ? 'equityGreen' : 'equityRed';
+        const chartData = equityData.map((p, i) => ({
+          i,
+          pnl: Number(p.cumulative_pnl),
+          label: p.date,
+        }));
+        return (
+          <div className="equity-card">
+            <div className="equity-header">
+              <span className="equity-title">Equity Curve</span>
+              <span className="equity-total" style={{ color }}>
+                {last >= 0 ? '+' : ''}${last.toFixed(2)}
+              </span>
+            </div>
+            <ResponsiveContainer width="100%" height={160}>
+              <AreaChart data={chartData} margin={{ top: 8, right: 4, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={color} stopOpacity={0.25} />
+                    <stop offset="95%" stopColor={color} stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="label" hide />
+                <YAxis hide domain={['auto', 'auto']} />
+                <Tooltip
+                  contentStyle={{ background: '#1c2537', border: '1px solid #27334a', borderRadius: 8, fontSize: 12 }}
+                  labelStyle={{ color: '#94a3b8' }}
+                  formatter={(v) => [`$${Number(v).toFixed(2)}`, 'P&L']}
+                  labelFormatter={(_, payload) => payload?.[0]?.payload?.label ?? ''}
+                />
+                <ReferenceLine y={0} stroke="#27334a" strokeDasharray="3 3" />
+                <Area
+                  type="monotone"
+                  dataKey="pnl"
+                  stroke={color}
+                  strokeWidth={2}
+                  fill={`url(#${gradId})`}
+                  dot={false}
+                  activeDot={{ r: 4, fill: color }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+            <div className="equity-meta">{equityData.length} trades plotted</div>
+          </div>
+        );
+      })()}
 
       <div className="dashboard-grid">
         <div className="card">

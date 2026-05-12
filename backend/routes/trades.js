@@ -190,6 +190,28 @@ router.get('/calendar', auth, async (req, res) => {
   }
 });
 
+// Equity curve — cumulative P&L per trade
+router.get('/stats/equity', auth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT
+        trade_date::text AS date,
+        asset,
+        result,
+        pnl,
+        ROUND(SUM(pnl) OVER (ORDER BY trade_date, created_at ROWS UNBOUNDED PRECEDING), 2) AS cumulative_pnl
+       FROM trades
+       WHERE user_id = $1 AND pnl IS NOT NULL
+       ORDER BY trade_date, created_at`,
+      [req.user.id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Analyze chart screenshot with AI vision
 router.post('/analyze-chart', auth, async (req, res) => {
   const { imageUrl } = req.body;

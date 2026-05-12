@@ -482,6 +482,18 @@ a { text-decoration: none; color: inherit; }
 .month-card-meta { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text2); margin-top: 4px; flex-wrap: wrap; }
 .month-card-dot { color: var(--border); }
 
+/* Equity curve */
+.equity-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 20px 12px;
+}
+.equity-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+.equity-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text2); }
+.equity-total { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
+.equity-meta { font-size: 12px; color: var(--text2); margin-top: 8px; text-align: right; }
+
 /* Calendar */
 .cal-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
 .cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
