@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ResponsiveContainer, AreaChart, Area,
+  BarChart, Bar, Cell,
   XAxis, YAxis, Tooltip, ReferenceLine,
 } from 'recharts';
 import api from '../lib/api';
@@ -11,6 +12,7 @@ export default function DashboardPage() {
   const [stats, setStats] = useState(null);
   const [monthStats, setMonthStats] = useState(null);
   const [equityData, setEquityData] = useState([]);
+  const [monthlyData, setMonthlyData] = useState([]);
   const [recentTrades, setRecentTrades] = useState([]);
   const [weeklyAnalysis, setWeeklyAnalysis] = useState('');
   const [loadingAnalysis, setLoadingAnalysis] = useState(false);
@@ -20,6 +22,7 @@ export default function DashboardPage() {
     api.get('/trades/stats/summary').then(r => setStats(r.data)).catch(() => {});
     api.get('/trades/stats/month').then(r => setMonthStats(r.data)).catch(() => {});
     api.get('/trades/stats/equity').then(r => setEquityData(r.data)).catch(() => {});
+    api.get('/trades/stats/monthly').then(r => setMonthlyData(r.data)).catch(() => {});
     api.get('/trades').then(r => setRecentTrades(r.data.slice(0, 5))).catch(() => {});
   }, []);
 
@@ -140,6 +143,43 @@ export default function DashboardPage() {
               </AreaChart>
             </ResponsiveContainer>
             <div className="equity-meta">{equityData.length} trades plotted</div>
+          </div>
+        );
+      })()}
+
+      {monthlyData.length > 0 && (() => {
+        const chartData = monthlyData.map(m => ({
+          label: m.label,
+          pnl: Number(m.pnl) || 0,
+          wins: Number(m.wins),
+          losses: Number(m.losses),
+        }));
+        return (
+          <div className="equity-card">
+            <div className="equity-header">
+              <span className="equity-title">Monthly P&L</span>
+              <span className="equity-meta" style={{ marginTop: 0, fontSize: 12 }}>last 12 months</span>
+            </div>
+            <ResponsiveContainer width="100%" height={160}>
+              <BarChart data={chartData} margin={{ top: 8, right: 4, left: 0, bottom: 0 }} barSize={18}>
+                <XAxis dataKey="label" tick={{ fill: '#7d8fa8', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis hide domain={['auto', 'auto']} />
+                <Tooltip
+                  contentStyle={{ background: '#1c2537', border: '1px solid #27334a', borderRadius: 8, fontSize: 12 }}
+                  labelStyle={{ color: '#94a3b8' }}
+                  formatter={(v, _n, props) => [
+                    `$${Number(v).toFixed(2)}`,
+                    `${props.payload.wins}W / ${props.payload.losses}L`,
+                  ]}
+                />
+                <ReferenceLine y={0} stroke="#27334a" />
+                <Bar dataKey="pnl" radius={[4, 4, 0, 0]}>
+                  {chartData.map((entry, i) => (
+                    <Cell key={i} fill={entry.pnl >= 0 ? '#10b981' : '#f43f5e'} opacity={0.85} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         );
       })()}

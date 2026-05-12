@@ -190,6 +190,31 @@ router.get('/calendar', auth, async (req, res) => {
   }
 });
 
+// Monthly P&L breakdown — last 12 months
+router.get('/stats/monthly', auth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT
+        TO_CHAR(DATE_TRUNC('month', trade_date), 'YYYY-MM') AS month,
+        TO_CHAR(DATE_TRUNC('month', trade_date), 'Mon') AS label,
+        COUNT(*) FILTER (WHERE result = 'win') AS wins,
+        COUNT(*) FILTER (WHERE result = 'loss') AS losses,
+        COUNT(*) AS total,
+        ROUND(SUM(pnl) FILTER (WHERE pnl IS NOT NULL), 2) AS pnl
+       FROM trades
+       WHERE user_id = $1
+         AND trade_date >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '11 months'
+       GROUP BY DATE_TRUNC('month', trade_date)
+       ORDER BY DATE_TRUNC('month', trade_date)`,
+      [req.user.id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Equity curve — cumulative P&L per trade
 router.get('/stats/equity', auth, async (req, res) => {
   try {

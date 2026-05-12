@@ -539,7 +539,28 @@ a { text-decoration: none; color: inherit; }
 .upload-zone-sub { font-size: 14px; color: var(--text2); }
 
 /* Tell Pip */
-.tellpip-textarea { min-height: 160px; font-size: 15px; line-height: 1.7; }
+.tellpip-textarea { min-height: 160px; font-size: 15px; line-height: 1.7; padding-right: 52px; }
+.mic-btn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--text2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.mic-btn:hover { border-color: var(--accent); color: var(--accent); }
+.mic-btn.active { background: rgba(244,63,94,0.15); border-color: #f43f5e; color: #f43f5e; }
+.mic-pulse { font-size: 14px; animation: mic-blink 0.9s ease-in-out infinite; }
+@keyframes mic-blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
+.mic-hint { font-size: 13px; color: #f43f5e; margin-top: -4px; }
 
 /* Wizard */
 .wizard-page { display: flex; flex-direction: column; min-height: calc(100vh - 60px); max-width: 600px; margin: 0 auto; padding: 28px 24px; gap: 0; }
