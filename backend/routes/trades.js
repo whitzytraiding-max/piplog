@@ -58,6 +58,7 @@ router.post('/', auth, async (req, res) => {
     rr_planned, rr_actual, result: tradeResult, pnl, session,
     setup_type, emotional_state, pre_note, post_note, screenshots, trade_date,
   } = req.body;
+  const n = v => (v === '' || v === undefined) ? null : v;
   try {
     const result = await pool.query(
       `INSERT INTO trades
@@ -66,9 +67,9 @@ router.post('/', auth, async (req, res) => {
          pre_note, post_note, screenshots, trade_date)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
        RETURNING *`,
-      [req.user.id, asset, direction, entry_price, exit_price, stop_loss, take_profit,
-       rr_planned, rr_actual, tradeResult, pnl, session, setup_type, emotional_state,
-       pre_note, post_note, JSON.stringify(screenshots || []), trade_date]
+      [req.user.id, asset, direction, n(entry_price), n(exit_price), n(stop_loss), n(take_profit),
+       n(rr_planned), n(rr_actual), n(tradeResult), n(pnl), n(session), n(setup_type), n(emotional_state),
+       n(pre_note), n(post_note), JSON.stringify(screenshots || []), trade_date]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -84,6 +85,7 @@ router.put('/:id', auth, async (req, res) => {
     rr_planned, rr_actual, result: tradeResult, pnl, session,
     setup_type, emotional_state, pre_note, post_note, screenshots, trade_date,
   } = req.body;
+  const n = v => (v === '' || v === undefined) ? null : v;
   try {
     const result = await pool.query(
       `UPDATE trades SET
@@ -92,9 +94,9 @@ router.put('/:id', auth, async (req, res) => {
         session=$11, setup_type=$12, emotional_state=$13, pre_note=$14,
         post_note=$15, screenshots=$16, trade_date=$17
        WHERE id=$18 AND user_id=$19 RETURNING *`,
-      [asset, direction, entry_price, exit_price, stop_loss, take_profit,
-       rr_planned, rr_actual, tradeResult, pnl, session, setup_type, emotional_state,
-       pre_note, post_note, JSON.stringify(screenshots || []), trade_date,
+      [asset, direction, n(entry_price), n(exit_price), n(stop_loss), n(take_profit),
+       n(rr_planned), n(rr_actual), n(tradeResult), n(pnl), n(session), n(setup_type), n(emotional_state),
+       n(pre_note), n(post_note), JSON.stringify(screenshots || []), trade_date,
        req.params.id, req.user.id]
     );
     if (!result.rows[0]) return res.status(404).json({ error: 'Not found' });
