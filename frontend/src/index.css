@@ -489,6 +489,22 @@ a { text-decoration: none; color: inherit; -webkit-tap-highlight-color: transpar
 .login-divider { display: flex; align-items: center; gap: 10px; width: 100%; margin: 4px 0; }
 .login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 .login-divider span { color: var(--text2); font-size: 12px; }
+.social-btns { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 8px; }
+.social-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; min-height: 48px; border-radius: 12px;
+  font-size: 15px; font-weight: 500; cursor: pointer;
+  border: none; transition: opacity 0.15s;
+}
+.social-btn:disabled { opacity: 0.6; }
+.social-btn:active { opacity: 0.8; }
+.google-btn { background: #fff; color: #1f1f1f; }
+.apple-btn { background: #000; color: #fff; border: 1px solid #333; }
+.social-spinner {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.15); border-top-color: #555;
+  animation: spin 0.7s linear infinite;
+}
 
 /* Onboarding */
 .onboarding-page { min-height: 100vh; background: radial-gradient(ellipse at 50% 0%, rgba(99, 102, 241, 0.1) 0%, #090c13 60%); display: flex; align-items: center; justify-content: center; padding: 24px; }

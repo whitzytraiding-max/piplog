@@ -3,24 +3,27 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { OAuth2Client } = require('google-auth-library');
+const appleSignin = require('apple-signin-auth');
 const pool = require('../db');
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const client = new OAuth2Client();
 
-// Run once on startup to ensure password_hash column exists
+// Ensure new columns exist
 pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT').catch(() => {});
+pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS apple_id TEXT').catch(() => {});
 
 const makeToken = (user) =>
   jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '30d' });
 
-// Google OAuth
+// Google OAuth — accepts both web and iOS client tokens
 router.post('/google', async (req, res) => {
   const { token } = req.body;
   try {
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
+    const audiences = [
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_IOS_CLIENT_ID,
+    ].filter(Boolean);
+    const ticket = await client.verifyIdToken({ idToken: token, audience: audiences });
     const { sub: google_id, email, name, picture: avatar } = ticket.getPayload();
 
     let result = await pool.query('SELECT * FROM users WHERE google_id = $1', [google_id]);
@@ -38,6 +41,48 @@ router.post('/google', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(400).json({ error: 'Google auth failed' });
+  }
+});
+
+// Apple Sign-In
+router.post('/apple', async (req, res) => {
+  const { identityToken, firstName, lastName, email: appleEmail } = req.body;
+  if (!identityToken) return res.status(400).json({ error: 'identityToken required' });
+  try {
+    const payload = await appleSignin.verifyIdToken(identityToken, {
+      audience: 'com.piplog.app',
+      ignoreExpiration: true,
+    });
+    const apple_id = payload.sub;
+    const email = payload.email || appleEmail || null;
+    const name = [firstName, lastName].filter(Boolean).join(' ') || email?.split('@')[0] || 'Trader';
+
+    // Find by apple_id first, then by email (link accounts)
+    let result = await pool.query('SELECT * FROM users WHERE apple_id = $1', [apple_id]);
+    let user = result.rows[0];
+
+    if (!user && email) {
+      result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+      user = result.rows[0];
+    }
+
+    if (user) {
+      if (!user.apple_id) {
+        await pool.query('UPDATE users SET apple_id = $1 WHERE id = $2', [apple_id, user.id]);
+        user.apple_id = apple_id;
+      }
+    } else {
+      result = await pool.query(
+        'INSERT INTO users (apple_id, email, name) VALUES ($1, $2, $3) RETURNING *',
+        [apple_id, email, name]
+      );
+      user = result.rows[0];
+    }
+
+    res.json({ token: makeToken(user), user });
+  } catch (err) {
+    console.error('Apple auth error:', err.message);
+    res.status(400).json({ error: 'Apple sign-in failed' });
   }
 });
 
