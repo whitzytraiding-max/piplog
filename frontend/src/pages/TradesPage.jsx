@@ -56,7 +56,7 @@ export default function TradesPage() {
       ) : (
         <div className="trades-grid">
           {filtered.map(t => (
-            <Link to={`/trades/${t.id}`} key={t.id} className="trade-card">
+            <Link to={`/trades/${t.id}`} key={t.id} className={`trade-card${t.result ? ' ' + t.result : ''}`}>
               <div className="trade-card-header">
                 <div>
                   <span className="trade-asset-lg">{t.asset}</span>

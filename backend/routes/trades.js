@@ -138,4 +138,54 @@ router.get('/stats/summary', auth, async (req, res) => {
   }
 });
 
+// Analyze chart screenshot with AI vision
+router.post('/analyze-chart', auth, async (req, res) => {
+  const { imageUrl } = req.body;
+  if (!imageUrl) return res.status(400).json({ error: 'imageUrl required' });
+
+  const Groq = require('groq-sdk');
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+  try {
+    const completion = await groq.chat.completions.create({
+      model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image_url', image_url: { url: imageUrl } },
+          {
+            type: 'text',
+            text: `Analyze this trading chart screenshot and extract all visible trade information.
+Return ONLY a valid JSON object with these exact fields (use null for anything not clearly visible):
+{
+  "asset": "the trading instrument e.g. EURUSD, BTCUSDT, AAPL, NAS100, XAUUSD",
+  "direction": "long" or "short" or null,
+  "entry_price": number or null,
+  "exit_price": number or null,
+  "stop_loss": number or null,
+  "take_profit": number or null,
+  "result": "win" or "loss" or "breakeven" or null,
+  "setup_type": "e.g. Breakout, Reversal, Order Block, Supply/Demand, Trend Continuation" or null,
+  "session": "london" or "new_york" or "asian" or "overlap" or null,
+  "platform": "e.g. TradingView, MT4, MT5, cTrader" or null
+}
+Return ONLY the JSON object, nothing else.`
+          }
+        ]
+      }],
+      max_tokens: 400,
+      temperature: 0.1,
+    });
+
+    const text = completion.choices[0].message.content.trim();
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON in response');
+    const detected = JSON.parse(jsonMatch[0]);
+    res.json(detected);
+  } catch (err) {
+    console.error('Chart analysis error:', err.message);
+    res.status(500).json({ error: 'Could not analyze chart' });
+  }
+});
+
 module.exports = router;

@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { getToken } from './lib/auth';
+import { getToken, getUser } from './lib/auth';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import TradesPage from './pages/TradesPage';
@@ -7,11 +7,19 @@ import TradeEntryPage from './pages/TradeEntryPage';
 import TradeDetailPage from './pages/TradeDetailPage';
 import PipPage from './pages/PipPage';
 import ProfilePage from './pages/ProfilePage';
+import OnboardingPage from './pages/OnboardingPage';
 import Nav from './components/Nav';
 import './App.css';
 
 function ProtectedRoute({ children }) {
   return getToken() ? children : <Navigate to="/login" replace />;
+}
+
+function OnboardingGuard({ children }) {
+  const user = getUser();
+  if (!getToken()) return <Navigate to="/login" replace />;
+  if (!user?.trading_style) return <Navigate to="/onboard" replace />;
+  return children;
 }
 
 function AppLayout({ children }) {
@@ -28,40 +36,45 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={
+        <Route path="/onboard" element={
           <ProtectedRoute>
-            <AppLayout><DashboardPage /></AppLayout>
+            <OnboardingPage />
           </ProtectedRoute>
+        } />
+        <Route path="/" element={
+          <OnboardingGuard>
+            <AppLayout><DashboardPage /></AppLayout>
+          </OnboardingGuard>
         } />
         <Route path="/trades" element={
-          <ProtectedRoute>
+          <OnboardingGuard>
             <AppLayout><TradesPage /></AppLayout>
-          </ProtectedRoute>
+          </OnboardingGuard>
         } />
         <Route path="/trades/new" element={
-          <ProtectedRoute>
+          <OnboardingGuard>
             <AppLayout><TradeEntryPage /></AppLayout>
-          </ProtectedRoute>
+          </OnboardingGuard>
         } />
         <Route path="/trades/:id" element={
-          <ProtectedRoute>
+          <OnboardingGuard>
             <AppLayout><TradeDetailPage /></AppLayout>
-          </ProtectedRoute>
+          </OnboardingGuard>
         } />
         <Route path="/trades/:id/edit" element={
-          <ProtectedRoute>
+          <OnboardingGuard>
             <AppLayout><TradeEntryPage /></AppLayout>
-          </ProtectedRoute>
+          </OnboardingGuard>
         } />
         <Route path="/pip" element={
-          <ProtectedRoute>
+          <OnboardingGuard>
             <AppLayout><PipPage /></AppLayout>
-          </ProtectedRoute>
+          </OnboardingGuard>
         } />
         <Route path="/profile" element={
-          <ProtectedRoute>
+          <OnboardingGuard>
             <AppLayout><ProfilePage /></AppLayout>
-          </ProtectedRoute>
+          </OnboardingGuard>
         } />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

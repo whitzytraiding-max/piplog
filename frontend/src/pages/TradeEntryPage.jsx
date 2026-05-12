@@ -21,6 +21,7 @@ export default function TradeEntryPage() {
   });
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [scanState, setScanState] = useState(null); // null | 'scanning' | 'filled' | 'error'
 
   useEffect(() => {
     if (isEdit) {
@@ -40,7 +41,31 @@ export default function TradeEntryPage() {
       const { data } = await api.post('/trades/upload', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      set('screenshots', [...form.screenshots, data.url]);
+      if (!isEdit && form.screenshots.length === 0) {
+        setScanState('scanning');
+        try {
+          const scan = await api.post('/trades/analyze-chart', { imageUrl: data.url });
+          setForm(f => ({
+            ...f,
+            screenshots: [...f.screenshots, data.url],
+            asset: f.asset || (scan.asset || ''),
+            direction: f.direction || (scan.direction || 'long'),
+            entry_price: f.entry_price || (scan.entry_price != null ? String(scan.entry_price) : ''),
+            exit_price: f.exit_price || (scan.exit_price != null ? String(scan.exit_price) : ''),
+            stop_loss: f.stop_loss || (scan.stop_loss != null ? String(scan.stop_loss) : ''),
+            take_profit: f.take_profit || (scan.take_profit != null ? String(scan.take_profit) : ''),
+            result: f.result || (scan.result || ''),
+            setup_type: f.setup_type || (scan.setup_type || ''),
+            session: f.session || (scan.session || ''),
+          }));
+          setScanState('filled');
+        } catch {
+          set('screenshots', [...form.screenshots, data.url]);
+          setScanState('error');
+        }
+      } else {
+        set('screenshots', [...form.screenshots, data.url]);
+      }
     } catch {
       alert('Upload failed');
     }
@@ -181,6 +206,13 @@ export default function TradeEntryPage() {
 
         <div className="form-section">
           <h3>Chart Screenshots</h3>
+          {scanState && (
+            <div className={`scan-banner ${scanState}`}>
+              {scanState === 'scanning' && <><div className="scan-spinner" /> Pip is reading your chart...</>}
+              {scanState === 'filled' && <>🐾 Pip filled these in — review and adjust if needed</>}
+              {scanState === 'error' && <>Pip couldn't read this chart — fill in the details manually</>}
+            </div>
+          )}
           <div className="screenshots-grid">
             {form.screenshots.map(url => (
               <div key={url} className="screenshot-thumb">
