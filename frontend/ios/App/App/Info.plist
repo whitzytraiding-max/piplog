@@ -47,6 +47,15 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.1092973927823-miiiril4gm8a5hobqogassd2vq80h3vb</string>
+			</array>
+		</dict>
+	</array>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>PipLog uses the microphone so you can describe your trades by voice with Tell Pip.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
