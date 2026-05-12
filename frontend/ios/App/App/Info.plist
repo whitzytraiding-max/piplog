@@ -47,5 +47,13 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>PipLog uses the microphone so you can describe your trades by voice with Tell Pip.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>PipLog uses speech recognition to convert your spoken trade description into text.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>PipLog uses the camera so you can photograph your trading charts directly.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>PipLog accesses your photo library so you can upload chart screenshots.</string>
 </dict>
 </plist>
