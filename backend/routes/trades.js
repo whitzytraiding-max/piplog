@@ -140,6 +140,56 @@ router.get('/stats/summary', auth, async (req, res) => {
   }
 });
 
+// Current month stats
+router.get('/stats/month', auth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT
+        COUNT(*) FILTER (WHERE result = 'win') AS wins,
+        COUNT(*) FILTER (WHERE result = 'loss') AS losses,
+        COUNT(*) FILTER (WHERE result = 'breakeven') AS breakevens,
+        COUNT(*) AS total,
+        ROUND(SUM(pnl) FILTER (WHERE pnl IS NOT NULL), 2) AS total_pnl
+       FROM trades
+       WHERE user_id = $1
+         AND DATE_TRUNC('month', trade_date) = DATE_TRUNC('month', CURRENT_DATE)`,
+      [req.user.id]
+    );
+    const stats = result.rows[0];
+    stats.win_rate = stats.total > 0 ? Math.round((stats.wins / stats.total) * 100) : 0;
+    res.json(stats);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Calendar data — trades grouped by day for a given month
+router.get('/calendar', auth, async (req, res) => {
+  const { year, month } = req.query;
+  const y = parseInt(year) || new Date().getFullYear();
+  const m = parseInt(month) || new Date().getMonth() + 1;
+  try {
+    const result = await pool.query(
+      `SELECT
+        trade_date::text AS date,
+        COUNT(*) AS total,
+        COUNT(*) FILTER (WHERE result = 'win') AS wins,
+        COUNT(*) FILTER (WHERE result = 'loss') AS losses,
+        ROUND(SUM(pnl) FILTER (WHERE pnl IS NOT NULL), 2) AS pnl
+       FROM trades
+       WHERE user_id = $1
+         AND EXTRACT(YEAR FROM trade_date) = $2
+         AND EXTRACT(MONTH FROM trade_date) = $3
+       GROUP BY trade_date
+       ORDER BY trade_date`,
+      [req.user.id, y, m]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Analyze chart screenshot with AI vision
 router.post('/analyze-chart', auth, async (req, res) => {
   const { imageUrl } = req.body;

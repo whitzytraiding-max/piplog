@@ -6,6 +6,7 @@ import TradesPage from './pages/TradesPage';
 import TradeEntryPage from './pages/TradeEntryPage';
 import TradeDetailPage from './pages/TradeDetailPage';
 import PipPage from './pages/PipPage';
+import CalendarPage from './pages/CalendarPage';
 import ProfilePage from './pages/ProfilePage';
 import OnboardingPage from './pages/OnboardingPage';
 import Nav from './components/Nav';
@@ -64,6 +65,11 @@ export default function App() {
         <Route path="/trades/:id/edit" element={
           <OnboardingGuard>
             <AppLayout><TradeEntryPage /></AppLayout>
+          </OnboardingGuard>
+        } />
+        <Route path="/calendar" element={
+          <OnboardingGuard>
+            <AppLayout><CalendarPage /></AppLayout>
           </OnboardingGuard>
         } />
         <Route path="/pip" element={

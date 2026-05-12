@@ -127,4 +127,53 @@ Trades: ${JSON.stringify(result.rows, null, 2)}`,
   }
 });
 
+// Extract trade details from natural language description
+router.post('/extract-trade', auth, async (req, res) => {
+  const { description } = req.body;
+  if (!description) return res.status(400).json({ error: 'description required' });
+  try {
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a trading journal assistant. Extract trade details from the user\'s description and return ONLY a valid JSON object. Use null for any field not mentioned.',
+        },
+        {
+          role: 'user',
+          content: `Extract trade details from this description: "${description}"
+
+Return ONLY a JSON object with these fields:
+{
+  "asset": "e.g. EURUSD, BTCUSDT, XAUUSD, AAPL, NAS100" or null,
+  "direction": "long" or "short" or null,
+  "entry_price": number or null,
+  "exit_price": number or null,
+  "stop_loss": number or null,
+  "take_profit": number or null,
+  "rr_planned": number or null,
+  "rr_actual": number or null,
+  "result": "win" or "loss" or "breakeven" or null,
+  "pnl": number or null,
+  "session": "london" or "new_york" or "asian" or "overlap" or null,
+  "setup_type": string or null,
+  "emotional_state": string or null,
+  "pre_note": "trader's reasoning/thesis if mentioned" or null
+}
+Return ONLY the JSON, nothing else.`,
+        },
+      ],
+      max_tokens: 400,
+      temperature: 0.1,
+    });
+    const text = completion.choices[0].message.content.trim();
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('No JSON');
+    res.json(JSON.parse(jsonMatch[0]));
+  } catch (err) {
+    console.error('Extract trade error:', err.message);
+    res.status(500).json({ error: 'Could not extract trade details' });
+  }
+});
+
 module.exports = router;

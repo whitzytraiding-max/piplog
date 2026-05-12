@@ -19,6 +19,7 @@ export default function Nav() {
       <div className="nav-links">
         <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Dashboard</NavLink>
         <NavLink to="/trades" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Journal</NavLink>
+        <NavLink to="/calendar" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Calendar</NavLink>
         <NavLink to="/pip" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Ask Pip</NavLink>
         <NavLink to="/profile" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Profile</NavLink>
       </div>

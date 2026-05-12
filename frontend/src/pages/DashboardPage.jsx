@@ -5,6 +5,7 @@ import { getUser } from '../lib/auth';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState(null);
+  const [monthStats, setMonthStats] = useState(null);
   const [recentTrades, setRecentTrades] = useState([]);
   const [weeklyAnalysis, setWeeklyAnalysis] = useState('');
   const [loadingAnalysis, setLoadingAnalysis] = useState(false);
@@ -12,6 +13,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     api.get('/trades/stats/summary').then(r => setStats(r.data)).catch(() => {});
+    api.get('/trades/stats/month').then(r => setMonthStats(r.data)).catch(() => {});
     api.get('/trades').then(r => setRecentTrades(r.data.slice(0, 5))).catch(() => {});
   }, []);
 
@@ -37,6 +39,24 @@ export default function DashboardPage() {
         </div>
         <Link to="/trades/new" className="btn-primary">+ Log Trade</Link>
       </div>
+
+      {monthStats && (
+        <div className="month-card">
+          <div className="month-card-label">This Month</div>
+          <div className="month-card-pnl" style={{ color: monthStats.total_pnl >= 0 ? '#10b981' : '#f43f5e' }}>
+            {monthStats.total_pnl >= 0 ? '+' : ''}{monthStats.total_pnl ? `$${Number(monthStats.total_pnl).toFixed(2)}` : '$0.00'}
+          </div>
+          <div className="month-card-meta">
+            <span>{monthStats.total} trades</span>
+            <span className="month-card-dot">·</span>
+            <span>{monthStats.win_rate}% win rate</span>
+            <span className="month-card-dot">·</span>
+            <span style={{ color: '#10b981' }}>{monthStats.wins}W</span>
+            <span> / </span>
+            <span style={{ color: '#f43f5e' }}>{monthStats.losses}L</span>
+          </div>
+        </div>
+      )}
 
       {stats && (
         <div className="stats-grid">
