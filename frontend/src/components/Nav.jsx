@@ -18,15 +18,15 @@ export default function Nav() {
         <span className="nav-title">PipLog</span>
       </div>
       <div className="nav-links">
-        <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Dashboard</NavLink>
-        <NavLink to="/trades" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Journal</NavLink>
-        <NavLink to="/calendar" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Calendar</NavLink>
-        <NavLink to="/pip" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Ask Pip</NavLink>
-        <NavLink to="/profile" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>Profile</NavLink>
+        <NavLink to="/" end className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>📊 <span>Dashboard</span></NavLink>
+        <NavLink to="/trades" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>📋 <span>Journal</span></NavLink>
+        <NavLink to="/calendar" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>📅 <span>Calendar</span></NavLink>
+        <NavLink to="/pip" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>🐾 <span>Ask Pip</span></NavLink>
+        <NavLink to="/profile" className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}>👤 <span>Profile</span></NavLink>
       </div>
       <div className="nav-user">
         {user?.avatar && <img src={user.avatar} alt={user.name} className="nav-avatar" />}
-        <button onClick={handleLogout} className="btn-ghost">Logout</button>
+        <button onClick={handleLogout} className="btn-ghost nav-logout"><span>Logout</span></button>
       </div>
     </nav>
   );
