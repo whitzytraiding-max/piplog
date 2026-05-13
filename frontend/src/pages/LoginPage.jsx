@@ -63,7 +63,7 @@ export default function LoginPage() {
       navigate('/', { replace: true });
     } catch (err) {
       if (err?.message !== 'The user canceled the sign-in flow.') {
-        setError('Google sign-in failed. Try email instead.');
+        setError(err?.message || 'Google sign-in failed.');
       }
     }
     setSocialLoading('');
@@ -92,7 +92,7 @@ export default function LoginPage() {
       navigate('/', { replace: true });
     } catch (err) {
       if (!err?.message?.includes('AuthorizationError error 1001')) {
-        setError('Apple sign-in failed. Try email instead.');
+        setError(err?.message || 'Apple sign-in failed.');
       }
     }
     setSocialLoading('');
