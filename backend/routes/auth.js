@@ -82,7 +82,7 @@ router.post('/apple', async (req, res) => {
     res.json({ token: makeToken(user), user });
   } catch (err) {
     console.error('Apple auth error:', err.message);
-    res.status(400).json({ error: 'Apple sign-in failed' });
+    res.status(400).json({ error: `Apple sign-in failed: ${err.message}` });
   }
 });
 

@@ -92,7 +92,7 @@ export default function LoginPage() {
       navigate('/', { replace: true });
     } catch (err) {
       if (!err?.message?.includes('AuthorizationError error 1001')) {
-        setError(err?.message || 'Apple sign-in failed.');
+        setError(err?.response?.data?.error || err?.message || 'Apple sign-in failed.');
       }
     }
     setSocialLoading('');
