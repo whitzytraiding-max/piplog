@@ -4,7 +4,13 @@ const cors = require('cors');
 
 const app = express();
 
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:5173',
+  'capacitor://localhost',
+  'http://localhost',
+  'http://localhost:5173',
+];
+app.use(cors({ origin: (origin, cb) => cb(null, !origin || allowedOrigins.includes(origin)) }));
 app.use(express.json());
 
 app.use('/api/auth', require('./routes/auth'));
