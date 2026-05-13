@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { getToken, getUser } from './lib/auth';
+import api from './lib/api';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import TradesPage from './pages/TradesPage';
@@ -33,6 +35,10 @@ function AppLayout({ children }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    api.get('/api/health').catch(() => {});
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>

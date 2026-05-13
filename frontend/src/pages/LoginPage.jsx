@@ -17,6 +17,7 @@ export default function LoginPage() {
   const [socialLoading, setSocialLoading] = useState('');
   const [error, setError] = useState('');
   const [showEmail, setShowEmail] = useState(false);
+  const [slowWarning, setSlowWarning] = useState(false);
 
   useEffect(() => {
     if (getToken()) navigate('/', { replace: true });
@@ -71,7 +72,9 @@ export default function LoginPage() {
 
   const handleApple = async () => {
     setSocialLoading('apple');
+    setSlowWarning(false);
     setError('');
+    const slowTimer = setTimeout(() => setSlowWarning(true), 6000);
     try {
       const { SignInWithApple } = await import('@capacitor-community/apple-sign-in');
       const result = await SignInWithApple.authorize({
@@ -95,6 +98,8 @@ export default function LoginPage() {
         setError(err?.response?.data?.error || err?.message || 'Apple sign-in failed.');
       }
     }
+    clearTimeout(slowTimer);
+    setSlowWarning(false);
     setSocialLoading('');
   };
 
@@ -139,6 +144,11 @@ export default function LoginPage() {
               <span>Continue with Apple</span>
             </button>
             <div className="login-divider"><span>or</span></div>
+            {slowWarning && (
+              <p style={{ fontSize: 12, color: '#888', textAlign: 'center', margin: '-8px 0 8px' }}>
+                Server is waking up, this may take 30s...
+              </p>
+            )}
           </div>
         )}
 
