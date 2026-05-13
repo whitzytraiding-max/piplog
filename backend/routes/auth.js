@@ -8,9 +8,10 @@ const pool = require('../db');
 
 const client = new OAuth2Client();
 
-// Ensure new columns exist
+// Ensure schema is up to date
 pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT').catch(() => {});
 pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS apple_id TEXT').catch(() => {});
+pool.query('ALTER TABLE users ALTER COLUMN google_id DROP NOT NULL').catch(() => {});
 
 const makeToken = (user) =>
   jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '30d' });
